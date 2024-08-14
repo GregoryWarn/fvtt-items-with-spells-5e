@@ -104,8 +104,8 @@ export class ItemsWithSpells5e {
     // Unusable if item is not attuned (but still show to GM)
     if (!game.user.isGM) {
       if (foundry.utils.isNewerVersion(game.system.version, "3.1.99")) {
-        const attunementRequired = item.system.attunement === "required";
-        if (!item.system.attuned && attunementRequired) return false;
+        const attunementRequired = item.system?.attunement === "required";
+        if (attunementRequired && !item.system?.attuned) return false;
       } else {
         const attunementRequired = CONFIG.DND5E.attunementTypes?.REQUIRED ?? 1;
         if (item.system?.attunement === attunementRequired) return false;
