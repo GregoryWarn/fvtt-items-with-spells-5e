@@ -17,11 +17,12 @@ Hooks.once("ready", async () => {
   const module = game.modules.get(ItemsWithSpells5e.MODULE_ID);
   module.api = {
     isIwsItem: ItemsWithSpells5e.isIwsItem,
-    isIwsSpell: ItemsWithSpells5e.isIwsSpell,
+    isIwsSpell: ItemsWithSpells5e.getSpellParentId,
     getItemSpells: ItemsWithSpells5eItem.getItemSpells,
     getSpellParentId: ItemsWithSpells5e.getSpellParentId,
     getSpellParentItem: ItemsWithSpells5e.getSpellParentItem,
     isIncludedItemType: ItemsWithSpells5e.isIncludedItemType,
-    isUsableItem: ItemsWithSpells5e.isUsableItem
+    isUsableItem: ItemsWithSpells5e.isUsableItem,
+    updateFlagsToV4: ItemsWithSpells5e.updateFlagsToV4
   }
 });

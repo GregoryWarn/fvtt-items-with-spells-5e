@@ -54,7 +54,7 @@ export class ItemsWithSpells5eActorSheet {
 
     // get all the items with spells on this actor
     const itemsWithSpells = this.actor.items.filter(item => {
-      const fl = item.getFlag(IWS.MODULE_ID, IWS.FLAGS.itemSpells)?.length;
+      const fl = IWS.isIwsItem(item);
       if (!fl) return false;
       const include = IWS.isIncludedItemType(item.type);
       return include;

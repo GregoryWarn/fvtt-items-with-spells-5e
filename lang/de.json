@@ -1,27 +1,54 @@
 {
-  "IWS.ATTACK_HINT": "Wenn dieser Zauber einen flachen Angriffsbonus hat, schreibe ihn hier hin.",
-  "IWS.CHARGES_HINT": "Wird der Zauber mit Ladungen des Gegenstands an dem er hängt gewirkt, muss oben die Zahl der verbrauchten Ladungen konfiguriert werden.",
-  "IWS.ConfigureOverrides": "Übersteuerungen konfigurieren",
-  "IWS.ConfigureSpell": "Zauber Konfigurieren",
-  "IWS.DeleteSpell": "Zauber aus Item löschen und Aufforderung zum Löschen aus Akteur",
-  "IWS.LIMITED_HINT": "Wenn dieser Zauber seine eigene Zahl Nutzungen pro Rast oder ähnliche Beschränkungen hat, muss das oben festgelegt werden.",
-  "IWS.MISSING_ITEM_DESCRIPTION": "Ursprungsitem dieses Zaubers konnte nicht gefunden worden. Wurde eventuell gelöscht?",
-  "IWS.MISSING_ITEM": "Fehlendes Item",
-  "IWS.MODULE_NAME": "Items with Spells",
-  "IWS.QUERY_ALSO_DELETE": "Auch die Zauber von dem Item löschen?",
-  "IWS.PreviewSpell": "Vorschau des Zaubers mit Überschreibungen",
-  "IWS.RemoveLink": "Verbindung löschen",
-  "IWS.SAVE_HINT": "Falls dieser Zauber einen festen SG oder andere spezielle Rettungswurflogik hat.",
-  "IWS.SETTINGS.ITEM_EXCLUSION.HINT": "Wählen, welche Itemtypen über Zauber verfügen können.",
-  "IWS.SETTINGS.ITEM_EXCLUSION.NAME": "Itemtypen wählen",
-  "IWS.SETTINGS.ITEM_EXCLUSION.TITLE": "Itemtyp Auschlussmenü",
-  "IWS.SETTINGS.SORT_ORDER.HINT": "Wenn aktiviert werden die durch dieses Modul erzeugten Zauberbuchsektionen am Ende statt am Anfang des Zauberbuchs hinzugefügt.",
-  "IWS.SETTINGS.SORT_ORDER.NAME": "Zauberbuch-Sortierfolge",
-  "IWS.SETTINGS.EXCLUDE_UNEQUIPPED.HINT": "Wenn diese Option aktiviert ist, werden Zauber für Items, die nicht ausgerüstet sind, nicht angezeigt. Wenn es nicht markiert ist, werden Zauber unabhängig vom Items angezeigt.",
-  "IWS.SETTINGS.EXCLUDE_UNEQUIPPED.NAME": "Zauber aus nicht ausgerüsteten Items ausblenden",
-  "IWS.SPELL_LEVEL_HINT": "Falls der Zauber auf einem bestimmten Grad gewirkt wird, Grad oben setzen.",
-  "IWS.WARN_ALSO_DELETE": "Der Zauber ist nicht mehr mit dem Item verknüpft, aber befindet sich noch auf dem Akteur. Möchten Sie auch den Zauberspruch vom Akteur löschen?",
-  "IWS.WARN_CANNOT_ADDREMOVE": "Auf einem Item im Besitz können Zauber nicht hinzugefügt oder entfernt werden. Diese Zauber wurden dem Zauberbuchreiter des Akteurs hinzugefügt.",
-  "IWS.WARN_OWNED_PARENT": "Es werden die Zauber eines Items im Besitz eines Akteurs bearbeitet. Jegliche Änderungen hier werden nicht auf die Zauber des besitzenden Akteurs übertragen.",
-  "IWS.WARN_OWNED_SPELL": "Item im Besitz des Akteurs. Unten hinzugefügte Zauber werden dem Akteur sofort hinzugefügt. Sie können keine Überschreibungen auf bereits vorhandene Zauber setzen, aber Sie können einen Zauber direkt konfigurieren. Überschreibungen können für Items in der Seitenleiste festgelegt werden."
+  "IWS": {
+    "MODULE_NAME": "Items with Spells",
+    "BUTTONS": {
+      "DeleteSpell": "Zauber aus Item löschen und Aufforderung zum Löschen aus Akteur",
+      "EditSpell": "Zauber bearbeiten",
+      "RemoveLink": "Verbindung löschen"
+    },
+    "DIALOG": {
+      "AlsoDeleteSpell": "Auch die Zauber von dem Item löschen?",
+      "DeleteOrphanedSpells": "Der Zauber ist nicht mehr mit dem Item verknüpft, aber befindet sich noch auf dem Akteur. Möchten Sie auch den Zauberspruch vom Akteur löschen?"
+    },
+    "FORM": {
+      "AttackHint": "Falls dieser Zauber einen flachen Angriffsbonus hat oder andere spezielle Angrifflogik hat.",
+      "ChargesHint": "Wird der Zauber mit Ladungen des Gegenstands an dem er hängt gewirkt, muss oben die Zahl der verbrauchten Ladungen konfiguriert werden.",
+      "NoOverride": "Nicht übersteuerungen",
+      "ConfigureOverrides": "Übersteuerungen konfigurieren",
+      "NoUsesHint": "Der übergeordnete Artikel hat keine begrenzten Verwendungen, die verbraucht werden können, daher ist dieses Feld deaktiviert.",
+      "LimitedHint": "Wenn dieser Zauber seine eigene Zahl Nutzungen pro Rast oder ähnliche Beschränkungen hat, muss das oben festgelegt werden.",
+      "SaveHint": "Falls dieser Zauber einen festen SG oder andere spezielle Rettungswurflogik hat."
+    },
+    "MISSING_ITEM": {
+      "Description": "Ursprungsitem dieses Zaubers konnte nicht gefunden worden. Wurde eventuell gelöscht?",
+      "Name": "Fehlendes Item"
+    },
+    "TAB": {
+      "AbilityBased": "{ability} basiert",
+      "Consumes": "Verbraucht",
+      "EmbeddedHint": "Item im Besitz des Akteurs. Unten hinzugefügte Zauber werden dem Akteur sofort hinzugefügt. Sie können keine Überschreibungen auf bereits vorhandene Zauber setzen, aber Sie können einen Zauber direkt bearbeiten.",
+      "Hint": "Die unten Zauber sind mit diesem Item verknüpft und werden einem Akteur hinzugefügt, mit allen Übersteuerungen, wenn Sie diesen Item auf das Bogen eines Akteurs ziehen.",
+      "FillerHint": "Ziehen Sie einen Zauber hierher, um ihn mit diesem Item zu verknüpfen.",
+      "PreviewSpell": "Vorschau des Zaubers mit Überschreibungen"
+    },
+    "SETTINGS" : {
+      "ITEM_EXCLUSION": {
+        "HINT": "Wählen, welche Itemtypen über Zauber verfügen können.",
+        "NAME": "Itemtypen wählen",
+        "TITLE": "Itemtyp Auschlussmenü"
+      },
+      "SORT_ORDER": {
+        "HINT": "Wenn aktiviert werden die durch dieses Modul erzeugten Zauberbuchsektionen am Ende statt am Anfang des Zauberbuchs hinzugefügt. (Standard: nicht angekreuzt)",
+        "NAME": "Zauberbuch-Sortierfolge"
+      },
+      "EXCLUDE_UNEQUIPPED": {
+        "HINT": "Wenn diese Option aktiviert ist, werden Zauber für Items, die nicht ausgerüstet sind, nicht angezeigt. Wenn es nicht markiert ist, werden Zauber unabhängig vom Items angezeigt. Diese Änderung wirkt sich nicht auf aktuell geöffnete Bögen aus. Schließen Sie ein Bogen und öffnen Sie es erneut, damit die Änderung wirksam wird. (Standard: nicht angekreuzt)",
+        "NAME": "Zauber aus nicht ausgerüsteten Items ausblenden"
+      }
+    },
+    "SUBTITLE" : {
+      "linked_item": "Klicken für Vorschau",
+      "owned_item": "Klicken zu wirken"
+    }
+  }
 }

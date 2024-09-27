@@ -22,8 +22,8 @@ export class ItemsWithSpells5eActor {
     if (!(itemDeleted.parent instanceof Actor)) return;
     if (["group", "vehicle"].includes(itemDeleted.parent.type)) return;
 
-    const ids = itemDeleted.getFlag(IWS.MODULE_ID, IWS.FLAGS.itemSpells) ?? [];
-    if (!ids.length) return;
+    const ids = IWS.isIwsItem(itemDeleted);
+    if (!ids) return;
 
     const spellIds = itemDeleted.actor.items.reduce((acc, item) => {
       const flag = IWS.getSpellParentId(item);
@@ -38,7 +38,7 @@ export class ItemsWithSpells5eActor {
     const autoConfirm = !game.user.isGM && itemDeleted.system?.identified === false;
     const confirm = optionOverride ?? autoConfirm ? true : await Dialog.confirm({
       title: game.i18n.localize("IWS.MODULE_NAME"),
-      content: game.i18n.localize("IWS.QUERY_ALSO_DELETE")
+      content: game.i18n.localize("IWS.DIALOG.AlsoDeleteSpell")
     });
     if (confirm) return itemDeleted.actor.deleteEmbeddedDocuments("Item", spellIds);
   }
@@ -57,20 +57,29 @@ export class ItemsWithSpells5eActor {
     if (!(itemCreated.parent instanceof Actor)) return;
     if (["group", "vehicle"].includes(itemCreated.parent.type)) return;
 
-    // bail out from creating the spells if the parent item is not valid.
+    // Bail out from creating the spells if the parent item is not valid.
     const include = IWS.isIncludedItemType(itemCreated.type);
     if (!include) return;
 
+    // Update flag schema to DnD5e v4.x
+    itemCreated = await IWS.updateFlagsToV4(itemCreated);
+
     // Get array of objects with uuids of spells to create.
-    const spellUuids = itemCreated.getFlag(IWS.MODULE_ID, IWS.FLAGS.itemSpells) ?? [];
-    if (!spellUuids.length) return;
+    const spellUuids = IWS.isIwsItem(itemCreated);
+    if (!spellUuids) return;
 
     // Create the spells from this item.
     const spells = await Promise.all(spellUuids.map(d => ItemsWithSpells5eActor._createSpellData(itemCreated, d)));
-    const spellData = spells.filter(s => s);
+
+    // While filtering spells, create array with override objects, matching spellData index
+    const overridesData = [];
+    const spellData = spells.filter((s, idx) => s ? overridesData.push(spellUuids[idx]?.overrides) : false);
+
+    // Add the spells to the actor
     const spellsCreated = await itemCreated.actor.createEmbeddedDocuments("Item", spellData);
 
-    const ids = spellsCreated.map(s => ({uuid: s.uuid, id: s.id}));
+    // Keep the overrides setting for each spell in case the item is ever put back into the sidebar
+    const ids = spellsCreated.map((s, idx) => ({uuid: s.uuid, id: s.id, overrides: overridesData[idx] }) );
     return itemCreated.setFlag(IWS.MODULE_ID, IWS.FLAGS.itemSpells, ids);
   }
 
@@ -84,36 +93,12 @@ export class ItemsWithSpells5eActor {
     const spell = await fromUuid(data.uuid);
     if (!spell) return null;
 
-    // Adjust attack bonus.
-    const changes = data.changes?.system || {};
-    if (changes.attackBonus) {
-      changes.ability = "none";
-      changes.attackBonus = `${changes.attackBonus || 0} - @prof`;
-    }
+    // Turn the overrides into an update object that can be merged
+    const update = IWS.createUpdateObject(parentItem, spell, data.overrides);
 
-    // Adjust limited uses.
-    const usesMax = changes.uses?.max;
-    if (usesMax) {
-      const rollData = parentItem.getRollData({deterministic: true});
-      changes.uses.value = dnd5e.utils.simplifyBonus(usesMax, rollData);
-    }
-
-    // Adjust item id for consumption.
-    if (changes.consume?.amount) {
-      changes.consume.type = "charges";
-      changes.consume.target = parentItem.id;
-    }
-
-    // Create and return spell data.
+    // Get a 'clean' implementation of the spell
     const spellData = game.items.fromCompendium(spell);
-    const mergeData = {
-      [`flags.${IWS.MODULE_ID}.${IWS.FLAGS.parentItem}`]: parentItem.id,
-      system: {...changes, "preparation.mode": "atwill"}
-    };
-    const tidy5eSectionFlag = spell.flags['tidy5e-sheet']?.section;
-    if (tidy5eSectionFlag) {
-      mergeData['flags.tidy5e-sheet.section'] = null;
-    }
-    return foundry.utils.mergeObject(spellData, mergeData);
+
+    return foundry.utils.mergeObject(spellData, update);
   }
 }

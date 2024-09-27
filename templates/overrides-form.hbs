@@ -1,90 +1,103 @@
-<form autocomplete="off">
-  <h2>{{localize "IWS.ConfigureOverrides"}}</h2>
+{{!-- FormGroup, zie: https://foundryvtt.wiki/en/development/api/helpers#forminput-and-formgroup --}}
 
-  <ol class="warnings">
-    {{#if parentItem.isEmbedded}}
-    <li class="notification warning">{{localize "IWS.WARN_OWNED_PARENT"}}</li>
-    {{/if}}
-  </ol>
+<section class="sheet-body">
+  <div class="tab detail active">
 
-  <div class="details">
+    <h1>{{localize "IWS.FORM.ConfigureOverrides"}}</h1>
 
-    {{!-- Limited Uses --}}
-    <h3 class="form-header">{{localize "DND5E.ConsumeTitle"}}</h3>
-    <div class="form-group uses-per">
-      <label>{{localize "DND5E.LimitedUses"}}</label>
-      <div class="form-fields">
-        <input type="text" name="overrides.system.uses.value" value="{{overrides.system.uses.max}}" disabled data-dtype="Number">
-        <span class="sep">{{localize "DND5E.of"}}</span>
-        <input type="text" name="overrides.system.uses.max" value="{{overrides.system.uses.max}}">
-        <span class="sep">{{localize "DND5E.per"}}</span>
-        <select name="overrides.system.uses.per">
-          {{selectOptions config.limitedUsePeriods selected=overrides.system.uses.per labelAttr="label"}}
-        </select>
+    {{!-- Resource Consumption --}}
+    <fieldset>
+      <legend>{{localize "DND5E.USAGE.SECTION.Consumption"}}</legend>
+
+      {{!-- Limited Uses --}}
+      <div class="form-group split-group">
+        <label>{{localize "DND5E.LimitedUses"}}</label>
+        <div class="form-fields">
+          {{!-- Spent |Display Only|Only for Embedded Spells| --}}
+          {{ formField fieldDefault name="display.spent" value=spellStats.spentUses label="DND5E.Spent" localize=true hint=false classes="label-top" disabled=true }}
+
+          {{!-- Max --}}
+          {{ formField fieldDefault name="overrides.uses.max" value=overrides.uses.max label="DND5E.Max" localize=true hint=false classes="label-top" }}
+
+          {{!-- Recovery Period --}}
+          {{ formField fieldDefault name="overrides.uses.recovery" value=overrides.uses.recovery options=options.recoveryPeriods label="DND5E.Recharge" localize=true hint=false classes="label-top" }}
+        </div>
+        <p class="hint">{{localize "IWS.FORM.LimitedHint"}}</p>
       </div>
-    </div>
-    <p class="notes">{{localize "IWS.LIMITED_HINT"}}</p>
 
-    <hr>
+      <hr>
 
-    {{!-- Consumption --}}
-    <div class="form-group uses-per">
-      <label>{{localize "DND5E.Charges"}}</label>
-      <div class="form-fields">
-        <select name="overrides.system.consume.type" disabled>
-          <option value="charges" selected>{{localize "DND5E.ConsumeCharges"}}</option>
-        </select>
-        <select name="overrides.system.consume.target" disabled>
-          <option value="{{parentItem.id}}" selected>{{parentItem.name}}</option>
-        </select>
-        <input type="text" name="overrides.system.consume.amount" value="{{overrides.system.consume.amount}}" data-dtype="Number" {{#unless parentItem.hasUses}}disabled{{/unless}}>
-        {{#if (gt spell.system.level 0)}}
-        <label class="checkbox" data-tooltip="DND5E.ConsumeScalingTooltip">
-          <input type="checkbox" name="overrides.system.consume.scale" {{checked overrides.system.consume.scale}}> {{localize "DND5E.ConsumeScaling"}}
-        </label>
-        {{/if}}
+      {{!-- Charges consumed from parent item --}}
+      <div class="form-group split-group">
+        <label>{{localize "DND5E.Charges"}}</label>
+        <div class="form-fields">
+          {{!-- Type: Item Uses |Display Only| --}}
+          {{ formField fieldDefault name="display.itemUses" value="itemUses" options=options.itemUses label="DND5E.Type" localize=true hint=false classes="label-top" disabled=true }}
+
+          {{!-- Target: Parent Item |Display Only| --}}
+          {{ formField fieldDefault name="display.consumptionTarget" value=parentItem.id options=options.parentItem label="DND5E.Target" localize=true hint=false classes="label-top" disabled=true }}
+
+          {{!-- Amount: Charges To Consume on Use --}}
+          {{ formField fieldDefault name="overrides.consumption.value" value=overrides.consumption.value label="DND5E.Amount" localize=true hint=parentItem.hasNoUsesHint classes="label-top" disabled=parentItem.hasNoUses }}
+
+          {{!-- Resource Scaling --}}
+          {{#if (and (not parentItem.hasNoUses) (gt spell.system.level 0) (gt overrides.consumption.value 0))}}
+            {{ formField fieldDefault name="overrides.consumption.scaling" value=overrides.consumption.scaling label="DND5E.CONSUMPTION.FIELDS.consumption.scaling.abbr" localize=true hint="DND5E.ConsumeScalingTooltip" classes="label-top flex-checkbox" input=inputs.createCheckboxInput }}
+          {{/if}}
+        </div>
+        <p class="hint">{{localize "IWS.FORM.ChargesHint"}}</p>
       </div>
-    </div>
-    <p class="notes">{{localize "IWS.CHARGES_HINT"}}</p>
 
-    {{#if hasSave}}
-    <h3 class="form-header">{{localize "DND5E.ActionSave"}}</h3>
+    </fieldset>
+
     {{!-- Saving Throw --}}
-    <div class="form-group input-select">
-      <label>{{localize "DND5E.ActionSave"}}</label>
-      <div class="form-fields">
-        <select name="save.ability" disabled>
-          {{selectOptions config.abilities selected=save.ability labelAttr="label"}}
-        </select>
-        <span>{{localize "DND5E.VsDC"}}</span>
+    <fieldset>
+      <legend>{{localize "DND5E.SavingThrow"}}</legend>
 
-        <input type="text" name="overrides.system.save.dc"
-          value="{{#if overrides.system.save.dc}}{{overrides.system.save.dc}}{{/if}}" data-dtype="Number"
-          placeholder="{{localize 'DND5E.AbbreviationDC'}}" {{#unless isFlatDC}}disabled{{/unless}}>
+      <div class="form-group split-group">
+        <label>{{localize "DND5E.SAVE.FIELDS.save.label"}}</label>
+        <div class="form-fields">
 
-        <select name="overrides.system.save.scaling">
-          {{selectOptions config.saveScaling selected=overrides.system.save.scaling labelAttr="label" localize=true}}
-        </select>
+          {{!-- Challenge Ability |Display Only| --}}
+          {{ formField fieldDefault name="display.dc.ability" value=spellStats.saveAbility options=options.abilityOptions label="DND5E.SAVE.FIELDS.save.ability.label" localize=true hint="DND5E.SAVE.FIELDS.save.ability.hint" classes="label-top" disabled=true }}
+
+          {{!-- DC Calculation --}}
+          {{ formField fieldDefault name="overrides.saveActivity.calculation" value=overrides.saveActivity.calculation options=options.calculationOptions label="DND5E.SAVE.FIELDS.save.dc.calculation.label" localize=true hint="DND5E.SAVE.FIELDS.save.dc.calculation.hint" classes="label-top" }}
+
+          {{!-- DC Formula --}}
+          {{ formField fieldDefault name="overrides.saveActivity.formula" value=overrides.saveActivity.formula label="DND5E.SAVE.FIELDS.save.dc.formula.label" localize="DND5E.SAVE.FIELDS.save.dc.formula.hint" hint="DND5E.SAVE.FIELDS.save.dc.formula.hint" classes="label-top" disabled=spellStats.hasNoFlatDC }}
+
+        </div>
+        <p class="hint">{{localize "IWS.FORM.SaveHint"}}</p>
       </div>
-    </div>
-    <p class="notes">{{localize "IWS.SAVE_HINT"}}</p>
-    {{/if}}
 
-    {{#if hasAttack}}
-    <h3 class="form-header">{{localize "DND5E.Attack"}}</h3>
+    </fieldset>
+
     {{!-- Attack Bonus --}}
-    <div class="form-group">
-      <label>{{localize "DND5E.ItemAttackBonus"}}</label>
-      <div class="form-fields">
-        <input type="number" name="overrides.system.attackBonus" value="{{overrides.system.attackBonus}}">
+    <fieldset>
+      <legend>{{localize "DND5E.Attack"}}</legend>
+
+      <div class="form-group split-group">
+        <label>{{localize "DND5E.ATTACK.FIELDS.attack.label"}}</label>
+          <div class="form-fields">
+
+            {{!-- Attack Ability --}}
+            {{ formField fieldDefault name="overrides.attackActivity.ability" value=overrides.attackActivity.ability options=options.abilityOptions label="DND5E.ATTACK.FIELDS.attack.ability.label" localize=true hint="DND5E.ATTACK.FIELDS.attack.ability.hint" classes="label-top" }}
+
+            {{!-- To Hit Bonus --}}
+            {{ formField fieldDefault name="overrides.attackActivity.bonus" value=overrides.attackActivity.bonus label="DND5E.ATTACK.FIELDS.attack.bonus.label" localize=true hint="DND5E.ATTACK.FIELDS.attack.bonus.hint" classes="label-top" }}
+
+            {{!-- Flat To Hit --}}
+            {{ formField fieldDefault name="overrides.attackActivity.flat" value=overrides.attackActivity.flat label="DND5E.ATTACK.FIELDS.attack.flat.label" localize=true hint="DND5E.ATTACK.FIELDS.attack.flat.hint" classes="label-top flex-checkbox" input=inputs.createCheckboxInput }}
+
+          </div>
+        <p class="hint">{{localize "IWS.FORM.AttackHint"}}</p>
       </div>
-    </div>
-    <p class="notes">{{localize "IWS.ATTACK_HINT"}}</p>
-    {{/if}}
+
+    </fieldset>
+
+    {{!-- spacing for the save button --}}
+    &nbsp;
 
   </div>
-
-  <button type="submit" name="submit">
-    <i class="far fa-save"></i> {{localize "Save"}} &amp; {{localize "Close"}}
-  </button>
-</form>
+</section>

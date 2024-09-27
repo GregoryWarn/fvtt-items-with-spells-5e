@@ -9,12 +9,12 @@ import {ItemsWithSpells5eItemSheet} from './item-sheet.js';
 const FakeEmptySpell = (uuid, parent) =>
   new Item.implementation(
     {
-      name: game.i18n.localize("IWS.MISSING_ITEM"),
+      name: game.i18n.localize("IWS.MISSING_ITEM.Name"),
       img: 'icons/svg/hazard.svg',
       type: 'spell',
       system: {
         description: {
-          value: game.i18n.localize("IWS.MISSING_ITEM_DESCRIPTION"),
+          value: game.i18n.localize("IWS.MISSING_ITEM.Description"),
         }
       },
       _id: uuid.split('.').pop()
@@ -75,40 +75,34 @@ export class ItemsWithSpells5eItem {
   }
 
   /**
-   * Gets the child item from its uuid and provided changes.
+   * Gets the child item from its uuid and provided overrides.
    * If the uuid points to an item already created on the actor: return that item.
-   * Otherwise create a temporary item, apply changes, and return that item's json.
+   * Otherwise create a temporary item, apply overrides, and return that item's json.
    */
-  async _getChildItem({uuid, changes = {}}) {
+  async _getChildItem({uuid, overrides = {}}) {
     // original could be in a compendium or on an actor
     let original = await fromUuid(uuid);
 
-    // return a fake 'empty' item if we could not create a childItem
+    // If this 'child' spell has been created on an actor, return that
+    if ([this.item.id, this.item.uuid].includes(IWS.getSpellParentId(original))) {
+      return original;
+    }
+
+    // Create a fake 'empty' item if we could not find the 'child' spell
     if (!original) {
       original = FakeEmptySpell(uuid, this.item.parent);
     }
 
-    // this exists if the 'child' spell has been created on an actor
-    if (original.getFlag(IWS.MODULE_ID, IWS.FLAGS.parentItem) === this.item.uuid) {
-      return original;
-    }
+    // Convert the overrides object into a usable update object
+    const update = IWS.createUpdateObject(this.item, original, overrides);
 
-    // merge with the changes that always need to be applied
-    const update = foundry.utils.mergeObject(changes, this._getFlagFixObject(original, uuid));
-
-    // backfill the 'charges' and 'target' for parent-item-charge consumption style spells
-    if (foundry.utils.getProperty(changes, 'system.consume.amount')) {
-      foundry.utils.mergeObject(update, {
-        'system.consume.type': 'charges',
-        'system.consume.target': this.item.id
-      });
-    }
+    // Save the uuid of how the spell is stored in the parentItem's flags into the temporary spell object, so that we know which is its original
+    update[`flags.${IWS.MODULE_ID}.${IWS.FLAGS.knownUuid}`] = uuid;
 
     const childItem = new Item.implementation(original.toObject(), {
       temporary: true,
       keepId: false,
-      parent: this.item.parent,
-      
+      parent: this.item.parent
     });
     await childItem.updateSource(update);
 
@@ -116,15 +110,15 @@ export class ItemsWithSpells5eItem {
   }
 
   /**
-   * Get a cached copy of temporary items or create and cache those items with the changes from flags applied.
-   * @returns {Promise<Map<string, Item5e>>} - array of temporary items created from the uuids and changes attached to this item
+   * Get a cached copy of temporary items or create and cache those items with the overrides from flags applied.
+   * @returns {Promise<Map<string, Item5e>>} - array of temporary items created from the uuids and overrides attached to this item
    */
   async _getItemSpellItems() {
     const itemMap = new Map();
 
     await Promise.all(
-      this.itemSpellList.map(async ({uuid, changes}) => {
-        const childItem = await this._getChildItem({uuid, changes});
+      this.itemSpellList.map(async ({uuid, overrides}) => {
+        const childItem = await this._getChildItem({uuid, overrides});
 
         if (!childItem) return;
 
@@ -153,26 +147,6 @@ export class ItemsWithSpells5eItem {
   }
 
   /**
-   * Returns an object to merge into the spells object to apply/fix flags
-   * @param {string} providedUuid
-   * @returns {object}
-   */
-  _getFlagFixObject(item, providedUuid) {
-    // Foundry v12 uses '_stats.compendiumSource' instead of 'flags.core.sourceId'
-    const sourceIdFlag = foundry.utils.isNewerVersion(game.version, "11.999") ? '_stats.compendiumSource' : 'flags.core.sourceId';
-    const changes = {
-      [sourceIdFlag]: providedUuid, // set the sourceId as the original spell
-      [`flags.${IWS.MODULE_ID}.${IWS.FLAGS.parentItem}`]: this.item.uuid,
-      'system.preparation.mode': 'atwill'
-    };
-    const tidy5eSectionFlag = item.flags['tidy5e-sheet']?.section;
-    if (tidy5eSectionFlag) {
-      changes['flags.tidy5e-sheet.section'] = null;
-    }
-    return changes;
-  }
-
-  /**
    * Adds a given UUID to the item's spell list
    * @param {string} providedUuid
    */
@@ -183,28 +157,27 @@ export class ItemsWithSpells5eItem {
     if (this.item.isEmbedded) {
       // if this item is already on an actor, we need to
       // 0. see if the uuid is already on the actor
-      // 1. create the dropped uuid on the Actor's item list (OR update that item to be a child of this one)
-      // 2. get the new uuid from the created item
-      // 3. add that uuid to this item's flags
-      const fullItemData = await fromUuid(uuid);
+      // 1. create the dropped spell on the Actor's item list
+      // 2. get the new uuid from the created spell
+      // 3. add that spell's uuid to this item's flags
+      const spell = await fromUuid(uuid);
 
-      if (!fullItemData) {
+      if (!spell) {
         ui.notifications.error('Item data for', uuid, 'not found');
         return;
       }
-      const changes = this._getFlagFixObject(fullItemData, providedUuid);
-      const adjustedItemData = foundry.utils.mergeObject(fullItemData.toObject(), changes);
+      const update = IWS.createUpdateObject(this.item, spell); // the default overrides
+      const adjustedItemData = foundry.utils.mergeObject(spell.toObject(), update);
 
       const [newItem] = await this.item.actor.createEmbeddedDocuments('Item', [adjustedItemData]);
       uuid = newItem.uuid;
     }
 
+    // Update the flag with the linked spells, but don't re-render the item sheet because we need to wait until we refresh to do so
     const itemSpells = [...this.itemSpellList, {uuid}];
-
-    // this update should not re-render the item sheet because we need to wait until we refresh to do so
     const property = `flags.${IWS.MODULE_ID}.${IWS.FLAGS.itemSpells}`;
     await this.item.update({[property]: itemSpells}, {render: false});
-
+    // Refresh the itemSpellList and 
     await this.refresh();
 
     // now re-render the item and actor sheets
@@ -222,8 +195,11 @@ export class ItemsWithSpells5eItem {
   async removeSpellFromItem(itemId, {alsoDeleteEmbeddedSpell} = {}) {
     const itemToDelete = this.itemSpellItemMap.get(itemId);
 
-    // If owned, we are storing the actual owned spell item's uuid. Else we store the source id.
-    const uuidToRemove = this.item.isEmbedded ? itemToDelete.uuid : await itemToDelete.getFlag("core", "sourceId");
+    // If a sheet for a temporary item is open, close that window
+    if (!this.item.isEmbedded && itemToDelete.sheet.rendered) itemToDelete.sheet.close();
+
+    // If owned, we are storing the actual owned spell item's uuid. Else we stored the source id.
+    const uuidToRemove = this.item.isEmbedded ? itemToDelete.uuid : itemToDelete.getFlag(IWS.MODULE_ID, IWS.FLAGS.knownUuid);
     const newItemSpells = this.itemSpellList.filter(({uuid}) => uuid !== uuidToRemove);
 
     // update the data manager's internal store of the items it contains
@@ -238,12 +214,12 @@ export class ItemsWithSpells5eItem {
     // remove the spell's `parentItem` flag
     const spellItem = fromUuidSync(uuidToRemove);
 
-    // the other item has already been deleted, probably do nothing.
+    // the spell has already been deleted, so do nothing
     if (!spellItem) return;
 
     const shouldDeleteSpell = alsoDeleteEmbeddedSpell && (await Dialog.confirm({
       title: game.i18n.localize("IWS.MODULE_NAME"),
-      content: game.i18n.localize("IWS.WARN_ALSO_DELETE")
+      content: game.i18n.localize("IWS.DIALOG.DeleteOrphanedSpells")
     }));
 
     if (shouldDeleteSpell) return spellItem.delete();
@@ -253,11 +229,11 @@ export class ItemsWithSpells5eItem {
   /**
    * Updates the given item's overrides
    * @param {*} itemId - spell attached to this item
-   * @param {*} overrides - object describing the changes that should be applied to the spell
+   * @param {*} overrides - object describing what should be changed in the spell
    */
   async updateItemSpellOverrides(itemId, overrides) {
     const itemSpellFlagsToUpdate = this.itemSpellFlagMap.get(itemId);
-    itemSpellFlagsToUpdate.changes = overrides;
+    itemSpellFlagsToUpdate.overrides = overrides;
     this.itemSpellFlagMap.set(itemId, itemSpellFlagsToUpdate);
     const newItemSpellsFlagValue = [...this.itemSpellFlagMap.values()];
 
@@ -266,10 +242,6 @@ export class ItemsWithSpells5eItem {
 
     // update this data manager's understanding of the items it contains
     await this.refresh();
-
-    ItemsWithSpells5eItemSheet.instances.forEach((instance) => {
-      if (instance.itemWithSpellsItem === this) instance._shouldOpenSpellsTab = true;
-    });
 
     // now re-render the item sheets
     this.item.render();

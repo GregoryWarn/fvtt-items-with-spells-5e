@@ -32,9 +32,9 @@
     "styles/items-with-spells-5e.css"
   ],
   "compatibility": {
-    "minimum": 11,
+    "minimum": 12,
     "maximum": 12,
-    "verified": "12.330"
+    "verified": "12.331"
   },
   "languages": [
     {
@@ -54,9 +54,9 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "minimum": "3.1.0",
-          "maximum": "3.9.99",
-          "verified": "3.3.1"
+          "minimum": "4.0.0",
+          "maximum": "4.9.99",
+          "verified": "4.0.3"
         }
       }
     ],
@@ -64,7 +64,7 @@
       {
         "id": "lib-wrapper",
         "compatibility": {
-          "minimum": "1.12.7.1"
+          "minimum": "1.12.14.1"
         }
       }
     ]

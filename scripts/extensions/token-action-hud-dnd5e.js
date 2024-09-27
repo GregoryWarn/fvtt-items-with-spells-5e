@@ -69,12 +69,13 @@ export class ItemsWithSpells5eExtendHUD {
             // Create a group for this item
             const info1 = {}
             const uses = item?.system?.uses
-            if (uses?.per && (uses.value > 0 || uses.max > 0)) {
-              const per = coreModule.api.Utils.i18n('DND5E.per')
-              const period = CONFIG.DND5E.limitedUsePeriods[uses.per]?.label ?? uses.per
-              const perPeriod = uses.per === 'charges' ? period : `${per} ${period}`
-              info1.text = `${uses.value ?? '0'}${uses.max > 0 ? `/${uses.max}` : ''}`
-              info1.title = `${item.name}: ${info1.text} ${perPeriod}`
+            if (uses?.max > 0) {
+              const per = uses.recovery[0]?.period === "charges" ? "" : ` ${game.i18n.localize("DND5E.per")} `;
+              const period = CONFIG.DND5E.limitedUsePeriods[uses.recovery[0]?.period]?.label ?? uses.recovery[0]?.period;
+              const perPeriod = period ? `${per}${period}` : "";
+              const remainingUses = uses.max - (uses.spent ?? 0);
+              info1.text = `${remainingUses}/${uses.max}`;
+              info1.title = `${text}${perPeriod}`;
             }
             const groupData = {
                 id: `${IWS.MODULE_ID}_${item.id}`,
@@ -91,7 +92,6 @@ export class ItemsWithSpells5eExtendHUD {
             // Add actions to the group, using the TAH DnD5e Build Actions
             const actionType = 'spell'
             const data = { groupData, actionData, actionType }
-            console.log('data: ', data)
             await this.actionHandler.buildActions(data)
           }
         }

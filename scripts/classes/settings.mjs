@@ -76,14 +76,13 @@ class IWS_TypeSettings extends FormApplication {
     const data = await super.getData();
     data.types = [];
     for (const type of TYPES) {
-      const label = type.titleCase();
       data.types.push({
         checked: game.settings.get(IWS.MODULE_ID, `isIncludedItemType${label}`),
         value: type,
-        label
+        label: game.i18n.localize(`TYPES.Item.${type}`)
       });
     }
-    return data;
+    return data.sort((a,b) => (a.label > b.label) ? 1 : (a.label < b.label) ? -1 : 0);
   }
 
   async _updateObject(event, formData) {

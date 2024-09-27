@@ -1,0 +1,135 @@
+
+<div class="items-section card">
+  <div class="items-header header flexrow">
+    <h3 class="spell-header flexrow">
+      <span class="iws-h3">{{localize 'TYPES.Item.spellPl'}}</span>
+      {{#if isEmbedded}}
+        <i class="fal fa-circle-question iws-hint" data-aria="{{localize "IWS.TAB.EmbeddedHint"}}" data-tooltip="{{localize "IWS.TAB.EmbeddedHint"}}"></i>
+      {{else}}
+        <i class="fal fa-circle-question iws-hint" data-aria="{{localize "IWS.TAB.Hint"}}" data-tooltip="{{localize "IWS.TAB.Hint"}}"></i>
+      {{/if}}
+    </h3>
+
+    <div class="item-header">
+      {{localize 'DND5E.SpellHeader.Roll'}}
+    </div>
+
+    <div class="item-header">
+      {{localize 'DND5E.Uses'}}
+    </div>
+
+    <div class="item-header">
+      {{localize 'IWS.TAB.Consumes'}}
+    </div>
+
+    <div class="item-controls"></div>
+
+  </div>
+  <ol class="item-list unlist">
+    {{#if (eq itemSpells.length 0)}}
+      <li class="hint items-with-spell-filler">{{localize "IWS.TAB.FillerHint"}}</li>
+    {{else}}
+      {{#each itemSpells as |spell|}}
+        <li class="item context-enabled" data-item-id="{{spell.id}}">
+          <div class="item-row flexrow">
+            {{!-- Image & Name --}}
+            {{#if @root/isEmbedded}}
+              <div class="item-name item-tooltip rollable" aria-label="{{spell.name}}" data-tooltip="<section class=&quot;loading&quot; data-uuid=&quot;{{spell.uuid}}&quot;><i class=&quot;fas fa-spinner fa-spin-pulse&quot;></i></section>" data-tooltip-class="dnd5e2 dnd5e-tooltip item-tooltip" data-tooltip-direction="LEFT">
+            {{else}}
+              <div class="item-name" data-tooltip="IWS.TAB.PreviewSpell">
+            {{/if}}
+
+                  <img class="item-image gold-icon" src="{{spell.img}}" alt="{{spell.name}}" />
+                  <div class="name name-stacked">
+                  <span class="title">{{spell.name}}</span>
+                  <span class="subtitle">
+                    {{#if @root/isEmbedded}}
+                      {{localize "IWS.SUBTITLE.owned_item"}}
+                    {{else}}
+                      {{localize "IWS.SUBTITLE.linked_item"}}
+                    {{/if}}
+                  </span>
+                </div>
+                <div class="tags"></div>
+              </div>
+
+            {{!-- Save & Attack --}}
+            <div class="item-detail item-roll{{#if (and (not spell.displaySave) (not spell.displayAttack))}} empty{{/if}}">
+              {{#if spell.displayAttack}}
+                <div class="stacked" title="{{localize "DND5E.ATTACK.FIELDS.attack.ability.label"}}">
+                    <span class="ability">
+                      {{#if spell.activityAttack.attack.flat}}
+                        {{localize "DND5E.Flat"}}
+                      {{else}}
+                        {{lookup @root.config.attackCalcOptions spell.activityAttack.attack.ability}}
+                      {{/if}}
+                    </span>
+                  <span class="value">{{spell.activityAttack.labels.toHit}}</span>
+                </div>
+              {{/if}}
+
+              {{#if spell.displaySave}}
+                <div class="stacked" title="{{localize "DND5E.SAVE.FIELDS.save.dc.calculation.label"}}">
+                    <span class="ability">
+                      {{lookup @root.config.saveCalcOptions spell.activitySave.save.dc.calculation}}
+                    </span>
+                    <span class="value">{{ localize "DND5E.SaveDC" dc=spell.activitySave.save.dc.value ability="" }}</span>
+                </div>
+              {{/if}}
+            </div>
+
+            {{!-- Limited Uses --}}
+            <div class="item-detail{{#if (lte spell.system.uses.max 0)}} empty{{/if}}">
+              {{#if (gt spell.system.uses.max 0)}}
+                <p>
+                  {{spell.system.uses.max}}
+                  {{#if spell.system.uses.recovery.0.period}}
+                    / {{lookup (lookup @root.config.limitedUsePeriods spell.system.uses.recovery.0.period) "abbreviation"}}
+                  {{/if}}
+                </p>
+              {{/if}}
+            </div>
+
+            {{!-- Charges --}}
+            <div class="item-detail{{#if (not spell.parentConsumption)}} empty{{/if}}">
+              {{#if (and spell.parentConsumption (gt spell.parentConsumption.value 0))}}
+                {{spell.parentConsumption.value}} {{localize 'DND5E.Charges'}}
+              {{/if}}
+            </div>
+
+            {{!-- Buttons --}}
+            <div class="item-controls context-menu">
+              {{#if @root/isOwner}}
+
+                {{#unless @root/isEmbedded}}
+                  <a class="item-control configure-overrides"
+                    data-tooltip="IWS.FORM.ConfigureOverrides">
+                    <i class="fas fa-wand-sparkles"></i>
+                  </a>
+                {{/unless}}
+                
+                {{#if spell.isOwner}}
+                  <a class="item-control item-edit" data-tooltip="IWS.BUTTONS.EditSpell">
+                      <i class="fas fa-edit"></i>
+                  </a>
+                {{/if}}
+
+                {{#if @root/isEmbedded}}
+                  <a class="item-control item-destroy" data-tooltip="IWS.BUTTONS.DeleteSpell">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                {{else}}
+                  <a class="item-control item-delete" data-tooltip="IWS.BUTTONS.RemoveLink">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                {{/if}}
+
+                {{/if}}
+            </div>
+
+          </div>
+        </li>
+      {{/each}}
+    {{/if}}
+  </ol>
+</div>
