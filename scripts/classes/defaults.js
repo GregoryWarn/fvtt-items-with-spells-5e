@@ -4,10 +4,11 @@ export class ItemsWithSpells5e {
   static FLAGS = {
     itemSpells: 'item-spells',
     parentItem: 'parent-item',
+    knownUuid: 'original-uuid'
   };
   static TEMPLATES = {
     spellsTab: `modules/${ItemsWithSpells5e.MODULE_ID}/templates/spells-tab.hbs`,
-    overrides: `modules/${ItemsWithSpells5e.MODULE_ID}/templates/overrides-form.hbs`,
+    overrides: `modules/${ItemsWithSpells5e.MODULE_ID}/templates/overrides-form.hbs`
   };
 
   static init() {
@@ -23,20 +24,12 @@ export class ItemsWithSpells5e {
    * Test if an item is an items-with-spells-5e item
    * @public
    * @param {Item5e[]} item The item to get the attached spells from
-   * @returns the parent item id or `null` if no parent item is found
+   * @returns the object with the spells
    */
   static isIwsItem(item) {
-    return item.getFlag(ItemsWithSpells5e.MODULE_ID, ItemsWithSpells5e.FLAGS.itemSpells) ?? null;
-  }
-  /**
-   * Test if a spell belongs to an items-with-spells-5e item
-   * Alias for getSpellParentId
-   * @public
-   * @param {Item5e[]} spell The spell with a parent item
-   * @returns the parent item id or `null` if no parent item is found
-   */
-  static isIwsSpell(spell) {
-    return ItemsWithSpells5e.getSpellParentId(spell);
+    if (typeof item === 'string') item = fromUuidSync(item);
+    const itemSpells = item?.getFlag(ItemsWithSpells5e.MODULE_ID, ItemsWithSpells5e.FLAGS.itemSpells) ?? [];
+    return itemSpells.length ? itemSpells : null;
   }
 
   /**
@@ -44,8 +37,10 @@ export class ItemsWithSpells5e {
    * @public
    * @param {Item5e[]} spell The spell with a parent item
    * @returns the parent item id or `null` if no parent item is found
+   * `isIwsSpell` exposed in the api as alias for this
    */
   static getSpellParentId(spell) {
+    if (typeof spell === 'string') spell = fromUuidSync(spell);
     return spell.getFlag(ItemsWithSpells5e.MODULE_ID, ItemsWithSpells5e.FLAGS.parentItem) ?? null;
   }
 
@@ -58,6 +53,7 @@ export class ItemsWithSpells5e {
    * @returns the parent item or `null` if spell has no parent or parent is not owned by the same actor
    */
   static async getSpellParentItem(spell, embeddedOnly = false, providedItems = false) {
+    if (typeof spell === 'string') spell = await fromUuid(spell);
     if (embeddedOnly && !spell.isEmbedded) return null;
     const parentId = ItemsWithSpells5e.getSpellParentId(spell);
     if (!parentId) return null;
@@ -96,6 +92,7 @@ export class ItemsWithSpells5e {
    * @returns {boolean} true if item should be shown
    */
   static isUsableItem(item) {
+    if (typeof item === 'string') item = fromUuidSync(item);
     // Unusable if item is not identified
     if (item.system?.identified === false) return false;
     // Unusable if item is not equipped and setting set to exclude based unequipped

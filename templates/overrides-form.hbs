@@ -1,12 +1,6 @@
 <form autocomplete="off">
   <h2>{{localize "IWS.ConfigureOverrides"}}</h2>
 
-  <ol class="warnings">
-    {{#if parentItem.isEmbedded}}
-    <li class="notification warning">{{localize "IWS.WARN_OWNED_PARENT"}}</li>
-    {{/if}}
-  </ol>
-
   <div class="details">
 
     {{!-- Limited Uses --}}
@@ -47,9 +41,8 @@
     </div>
     <p class="notes">{{localize "IWS.CHARGES_HINT"}}</p>
 
-    {{#if hasSave}}
-    <h3 class="form-header">{{localize "DND5E.ActionSave"}}</h3>
     {{!-- Saving Throw --}}
+    <h3 class="form-header">{{localize "DND5E.ActionSave"}}</h3>
     <div class="form-group input-select">
       <label>{{localize "DND5E.ActionSave"}}</label>
       <div class="form-fields">
@@ -68,19 +61,16 @@
       </div>
     </div>
     <p class="notes">{{localize "IWS.SAVE_HINT"}}</p>
-    {{/if}}
 
-    {{#if hasAttack}}
-    <h3 class="form-header">{{localize "DND5E.Attack"}}</h3>
     {{!-- Attack Bonus --}}
+    <h3 class="form-header">{{localize "DND5E.Attack"}}</h3>
     <div class="form-group">
       <label>{{localize "DND5E.ItemAttackBonus"}}</label>
       <div class="form-fields">
-        <input type="number" name="overrides.system.attackBonus" value="{{overrides.system.attackBonus}}">
+        <input type="number" name="overrides.system.attack.bonus" value="{{overrides.system.attack.bonus}}">
       </div>
     </div>
     <p class="notes">{{localize "IWS.ATTACK_HINT"}}</p>
-    {{/if}}
 
   </div>
 

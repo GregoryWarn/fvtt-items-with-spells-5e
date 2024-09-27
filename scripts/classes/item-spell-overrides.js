@@ -43,11 +43,15 @@ export class ItemsWithSpells5eItemSpellOverrides extends FormApplication {
 
   getData() {
     const uses = this.item.system.uses || {};
+    const overrides = this.object;
+    if (overrides.system?.attackBonus) {
+      overrides.system = foundry.utils.mergeObject(overrides.system, {['attack.bonus']: overrides.system.attackBonus});
+    }
     const ret = {
       hasAttack: this.itemSpellItem.hasAttack,
       hasSave: this.itemSpellItem.hasSave,
       save: this.itemSpellItem.system.save,
-      overrides: this.object,
+      overrides,
       config: {
         limitedUsePeriods: CONFIG.DND5E.limitedUsePeriods,
         abilities: CONFIG.DND5E.abilities,
@@ -59,7 +63,7 @@ export class ItemsWithSpells5eItemSpellOverrides extends FormApplication {
           "flat": { label: "DND5E.Flat" }
         }
       },
-      isFlatDC: this.object?.system?.save?.scaling === 'flat',
+      isFlatDC: overrides?.system?.save?.scaling === 'flat',
       spell: this.itemSpellItem,
       parentItem: {
         id: this.item.id,
@@ -73,15 +77,14 @@ export class ItemsWithSpells5eItemSpellOverrides extends FormApplication {
 
   async _updateObject(event, formData) {
     const formDataExpanded = foundry.utils.expandObject(formData);
-    await this.itemWithSpellsItem.updateItemSpellOverrides(this.itemSpellId, formDataExpanded.overrides);
     this.object = formDataExpanded.overrides;
-
-    if (this.item.isEmbedded) {
-      ui.notifications.warn('The existing spells on the parent actor will not be modified to reflect this change.');
+    if (event instanceof SubmitEvent) {
+      // Button pressed to save and close the form
+      await this.itemWithSpellsItem.updateItemSpellOverrides(this.itemSpellId, this.object);
+      this.close();
+    } else {
+      // Update the form to reflect the change
+      this.render();
     }
-
-    // close if this is a submit (button press or `enter` key)
-    if (event instanceof SubmitEvent) this.close();
-    else this.render();
   }
 }

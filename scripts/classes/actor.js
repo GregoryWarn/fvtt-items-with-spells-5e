@@ -22,8 +22,8 @@ export class ItemsWithSpells5eActor {
     if (!(itemDeleted.parent instanceof Actor)) return;
     if (["group", "vehicle"].includes(itemDeleted.parent.type)) return;
 
-    const ids = itemDeleted.getFlag(IWS.MODULE_ID, IWS.FLAGS.itemSpells) ?? [];
-    if (!ids.length) return;
+    const ids = IWS.isIwsItem(itemDeleted);
+    if (!ids) return;
 
     const spellIds = itemDeleted.actor.items.reduce((acc, item) => {
       const flag = IWS.getSpellParentId(item);
@@ -62,15 +62,21 @@ export class ItemsWithSpells5eActor {
     if (!include) return;
 
     // Get array of objects with uuids of spells to create.
-    const spellUuids = itemCreated.getFlag(IWS.MODULE_ID, IWS.FLAGS.itemSpells) ?? [];
-    if (!spellUuids.length) return;
+    const spellUuids = IWS.isIwsItem(itemCreated);
+    if (!spellUuids) return;
 
     // Create the spells from this item.
     const spells = await Promise.all(spellUuids.map(d => ItemsWithSpells5eActor._createSpellData(itemCreated, d)));
-    const spellData = spells.filter(s => s);
+
+    // While filtering spells, create array with override objects, matching spellData index
+    const overridesData = [];
+    const spellData = spells.filter((s, idx) => s ? overridesData.push(spellUuids[idx]?.changes) : false);
+
+    // Add the spells to the actor
     const spellsCreated = await itemCreated.actor.createEmbeddedDocuments("Item", spellData);
 
-    const ids = spellsCreated.map(s => ({uuid: s.uuid, id: s.id}));
+    // Keep the changes settings for each spell in case the item is ever put back into the sidebar
+    const ids = spellsCreated.map((s, idx) => ({uuid: s.uuid, id: s.id, changes: overridesData[idx]}));
     return itemCreated.setFlag(IWS.MODULE_ID, IWS.FLAGS.itemSpells, ids);
   }
 
@@ -86,9 +92,13 @@ export class ItemsWithSpells5eActor {
 
     // Adjust attack bonus.
     const changes = data.changes?.system || {};
-    if (changes.attackBonus) {
-      changes.ability = "none";
-      changes.attackBonus = `${changes.attackBonus || 0} - @prof`;
+    if (changes.attackBonus && !changes.attack) {
+      changes.attack = {
+        bonus: changes.attackBonus,
+        flat: true
+      }
+    } else if (changes.attack?.bonus) {
+      changes.attack.flat = true;
     }
 
     // Adjust limited uses.

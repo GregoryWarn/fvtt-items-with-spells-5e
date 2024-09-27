@@ -89,12 +89,25 @@ export class ItemsWithSpells5eItem {
     }
 
     // this exists if the 'child' spell has been created on an actor
-    if (original.getFlag(IWS.MODULE_ID, IWS.FLAGS.parentItem) === this.item.uuid) {
+    if ([this.item.id, this.item.uuid].includes(IWS.getSpellParentId(original))) {
       return original;
     }
 
+    // consider backward compatibility
+    if (changes.system && changes.system.attackBonus && !changes.system.attack) {
+      changes.system.attack = {
+        bonus: changes.system.attackBonus,
+        flat: true
+      }
+    } else if (changes.system && changes.system.attack?.bonus) {
+      changes.system.attack.flat = true;
+    }
+
     // merge with the changes that always need to be applied
-    const update = foundry.utils.mergeObject(changes, this._getFlagFixObject(original, uuid));
+    const update = foundry.utils.mergeObject(changes, this._getFlagFixObject(original));
+
+    // Save the uuid of how the spell is stored in the parentItem's flags into the temporary spell object, so that we know which is its original
+    update[`flags.${IWS.MODULE_ID}.${IWS.FLAGS.knownUuid}`] = uuid;
 
     // backfill the 'charges' and 'target' for parent-item-charge consumption style spells
     if (foundry.utils.getProperty(changes, 'system.consume.amount')) {
@@ -107,8 +120,7 @@ export class ItemsWithSpells5eItem {
     const childItem = new Item.implementation(original.toObject(), {
       temporary: true,
       keepId: false,
-      parent: this.item.parent,
-      
+      parent: this.item.parent
     });
     await childItem.updateSource(update);
 
@@ -154,14 +166,11 @@ export class ItemsWithSpells5eItem {
 
   /**
    * Returns an object to merge into the spells object to apply/fix flags
-   * @param {string} providedUuid
+   * @param {Item5e} item
    * @returns {object}
    */
-  _getFlagFixObject(item, providedUuid) {
-    // Foundry v12 uses '_stats.compendiumSource' instead of 'flags.core.sourceId'
-    const sourceIdFlag = foundry.utils.isNewerVersion(game.version, "11.999") ? '_stats.compendiumSource' : 'flags.core.sourceId';
+  _getFlagFixObject(item) {
     const changes = {
-      [sourceIdFlag]: providedUuid, // set the sourceId as the original spell
       [`flags.${IWS.MODULE_ID}.${IWS.FLAGS.parentItem}`]: this.item.uuid,
       'system.preparation.mode': 'atwill'
     };
@@ -183,17 +192,17 @@ export class ItemsWithSpells5eItem {
     if (this.item.isEmbedded) {
       // if this item is already on an actor, we need to
       // 0. see if the uuid is already on the actor
-      // 1. create the dropped uuid on the Actor's item list (OR update that item to be a child of this one)
-      // 2. get the new uuid from the created item
-      // 3. add that uuid to this item's flags
-      const fullItemData = await fromUuid(uuid);
+      // 1. create the dropped spell on the Actor's item list
+      // 2. get the new uuid from the created spell
+      // 3. add that spell's uuid to this item's flags
+      const spell = await fromUuid(uuid);
 
-      if (!fullItemData) {
+      if (!spell) {
         ui.notifications.error('Item data for', uuid, 'not found');
         return;
       }
-      const changes = this._getFlagFixObject(fullItemData, providedUuid);
-      const adjustedItemData = foundry.utils.mergeObject(fullItemData.toObject(), changes);
+      const changes = this._getFlagFixObject(spell);
+      const adjustedItemData = foundry.utils.mergeObject(spell.toObject(), changes);
 
       const [newItem] = await this.item.actor.createEmbeddedDocuments('Item', [adjustedItemData]);
       uuid = newItem.uuid;
@@ -223,7 +232,7 @@ export class ItemsWithSpells5eItem {
     const itemToDelete = this.itemSpellItemMap.get(itemId);
 
     // If owned, we are storing the actual owned spell item's uuid. Else we store the source id.
-    const uuidToRemove = this.item.isEmbedded ? itemToDelete.uuid : await itemToDelete.getFlag("core", "sourceId");
+    const uuidToRemove = this.item.isEmbedded ? itemToDelete.uuid : itemToDelete.getFlag(IWS.MODULE_ID, IWS.FLAGS.knownUuid);
     const newItemSpells = this.itemSpellList.filter(({uuid}) => uuid !== uuidToRemove);
 
     // update the data manager's internal store of the items it contains

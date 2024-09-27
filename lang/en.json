@@ -1,26 +1,48 @@
 {
-  "IWS.ATTACK_HINT": "If this spell has a flat attack bonus, write it here.",
-  "IWS.CHARGES_HINT": "If this spell will be cast using charges from the parent item, configure the number of charges above.",
-  "IWS.ConfigureOverrides": "Configure overrides",
-  "IWS.ConfigureSpell": "Configure spell",
-  "IWS.DeleteSpell": "Delete spell from item and prompt to delete from actor",
-  "IWS.LIMITED_HINT": "If this spell has a number of uses per rest or similar innate limitations, configure the number of charges above.",
-  "IWS.MISSING_ITEM_DESCRIPTION": "This spell's original item could not be found. Maybe it was deleted?",
-  "IWS.MISSING_ITEM": "Missing Item",
-  "IWS.MODULE_NAME": "Items with Spells",
-  "IWS.QUERY_ALSO_DELETE": "Would you also like to delete the spells from that item?",
-  "IWS.PreviewSpell": "Preview spell with overrides",
-  "IWS.RemoveLink": "Remove link to spell",
-  "IWS.SAVE_HINT": "If this spell has a flat DC or other specialized saving throw logic.",
-  "IWS.SETTINGS.ITEM_EXCLUSION.HINT": "Select which item types can have spells attached.",
-  "IWS.SETTINGS.ITEM_EXCLUSION.NAME": "Select item types",
-  "IWS.SETTINGS.ITEM_EXCLUSION.TITLE": "Item Type Exclusion Menu",
-  "IWS.SETTINGS.SORT_ORDER.HINT": "If checked, spellbook sections added by this module will be put at the bottom of the spellbook tab, rather than the top. If you are using Tidy 5e Sheets, you can change the order with the edit cog on the sheet, regardless if this is checked. (default: unchecked)",
-  "IWS.SETTINGS.SORT_ORDER.NAME": "Show spells at bottom of spellbook",
-  "IWS.SETTINGS.EXCLUDE_UNEQUIPPED.HINT": "If checked, spells won't be shown for items that are not equipped. If unchecked, spells will be shown regardless of equipped status. Changing this won't take effect on currently open sheets. Close and reopen to see this work. (default: checked)",
-  "IWS.SETTINGS.EXCLUDE_UNEQUIPPED.NAME": "Hide spells from unequipped items",
-  "IWS.WARN_ALSO_DELETE": "The spell is not longer linked to the item, but is still present on the actor. Do you also want to delete the spell from the actor?",
-  "IWS.WARN_CANNOT_ADDREMOVE": "An owned item's spells cannot be added to or removed from. These spells have been added to the actor's spellbook Tab.",
-  "IWS.WARN_OWNED_PARENT": "You are editing an owned item's spells, any changes made here will not be applied to the spells on the owning actor.",
-  "IWS.WARN_OWNED_SPELL": "Item owned by actor. Spells added below are immediately added to the actor. You can't set overrides on already owned spells, but you can configure a spell directly. Overrides can be set on items in the sidebar (i.e. not on a character sheet)."
+  "IWS": {
+    "ATTACK_HINT": "If this spell has a flat attack bonus, write it here.",
+    "BUTTONS": {
+      "DeleteSpell": "Delete spell from item and prompt to delete from actor",
+      "EditSpell": "Edit spell",
+      "RemoveLink": "Remove spell from item"
+    },
+    "TAB": {
+      "AbilityBased": "{ability} based",
+      "Consumes": "Consumes",
+      "EmbeddedHint": "Item owned by actor. Spells added below are immediately added to the actor. You can't set overrides on already owned spells, but you can configure a spell directly.",
+      "Hint": "The spells below are linked to this item and will be added to an actor, with any overrides, when you drag this item unto an actor's sheet.",
+      "FillerHint": "Drag and drop a spell here to link it to this item.",
+      "PreviewSpell": "Preview spell with overrides"
+    },
+    "CHARGES_HINT": "If this spell will be cast using charges from the parent item, configure the number of charges above.",
+    "ConfigureOverrides": "Configure overrides",
+    "LIMITED_HINT": "If this spell has a number of uses per rest or similar innate limitations, configure the number of charges above.",
+    "MISSING_ITEM_DESCRIPTION": "This spell's original item could not be found. Maybe it was deleted?",
+    "MISSING_ITEM": "Missing Item",
+    "MODULE_NAME": "Items with Spells",
+    "QUERY_ALSO_DELETE": "Would you also like to delete the spells from that item?",
+    "PreviewSpell": "Preview spell with overrides",
+    "SAVE_HINT": "If this spell has a flat DC or other specialized saving throw logic.",
+    "SETTINGS" : {
+      "ITEM_EXCLUSION": {
+        "HINT": "Select which item types can have spells attached.",
+        "NAME": "Select item types",
+        "TITLE": "Item Type Exclusion Menu"
+      },
+      "SORT_ORDER": {
+        "HINT": "If checked, spellbook sections added by this module will be put at the bottom of the spellbook tab, rather than the top. If you are using Tidy 5e Sheets, you can change the order with the edit cog on the sheet, regardless if this is checked. (default: unchecked)",
+        "NAME": "Show spells at bottom of spellbook"
+      },
+      "EXCLUDE_UNEQUIPPED": {
+        "HINT": "If checked, spells won't be shown for items that are not equipped. If unchecked, spells will be shown regardless of equipped status. Changing this won't take effect on currently open sheets. Close and reopen a sheet to see this work. (default: checked)",
+        "NAME": "Hide spells from unequipped items"
+      }
+    },
+    "WARN_ALSO_DELETE": "The spell is not longer linked to the item, but is still present on the actor. Do you also want to delete the spell from the actor?",
+    "WARN_OWNED_SPELL": "Item owned by actor. Spells added below are immediately added to the actor. You can't set overrides on already owned spells, but you can configure a spell directly. Overrides can be set on items in the sidebar (i.e. not on a character sheet).",
+    "SUBTITLE": {
+      "linked_item": "Click to preview spell with overrides",
+      "owned_item": "Click to cast spell"
+    }
+  }
 }

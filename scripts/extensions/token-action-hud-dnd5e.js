@@ -91,7 +91,6 @@ export class ItemsWithSpells5eExtendHUD {
             // Add actions to the group, using the TAH DnD5e Build Actions
             const actionType = 'spell'
             const data = { groupData, actionData, actionType }
-            console.log('data: ', data)
             await this.actionHandler.buildActions(data)
           }
         }

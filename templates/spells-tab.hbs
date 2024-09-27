@@ -1,82 +1,111 @@
-<div class="items-with-spells-tab flex-1">
-  {{#dnd5e-concealSection @root/concealDetails}}
-    <ol class="items-list items-with-spells-items-list">
-      <li class="items-header flexrow">
-        <h3 class="item-name flexrow">
-          {{localize 'TYPES.Item.spellPl'}}
-          {{#if @root/isEmbedded}}
-            <i class="fad fa-circle-info" style="padding-left: 0.5em;" data-tooltip="IWS.WARN_OWNED_SPELL"></i>
+<div>
+{{#dnd5e-concealSection concealDetails}}
+  <ol class="items-list">
+    <li class="items-header item-list flexrow">
+      <div class="flexrow">
+        <h3 class="item-name">
+          <span class="iws-h3">{{localize 'TYPES.Item.spellPl'}}</span>
+          {{#if isEmbedded}}
+            <i class="fal fa-circle-question iws-hint" data-aria="{{localize "IWS.TAB.EmbeddedHint"}}" data-tooltip="{{localize "IWS.TAB.EmbeddedHint"}}"></i>
+          {{else}}
+            <i class="fal fa-circle-question iws-hint" data-aria="{{localize "IWS.TAB.Hint"}}" data-tooltip="{{localize "IWS.TAB.Hint"}}"></i>
           {{/if}}
         </h3>
 
-        <div class="item-detail">
-          {{localize 'DND5E.ActionSave'}}
+        <div class="item-header">
+          {{localize 'DND5E.SpellHeader.Roll'}}
         </div>
 
-        <div class="item-detail spell-uses">
+        <div class="item-header">
           {{localize 'DND5E.Uses'}}
         </div>
 
-        <div class="item-detail spell-uses">
-          {{localize 'DND5E.Charges'}}
+        <div class="item-header">
+          {{localize 'IWS.TAB.Consumes'}}
         </div>
 
         <div class="item-controls"></div>
+      </div>
+    </li>
+    <ol class="item-list">
+      {{#if (or concealDetails (eq itemSpells.length 0))}}
+        <li class="hint items-with-spell-filler">{{localize "IWS.TAB.FillerHint"}}</li>
+      {{else}}
+        {{#each itemSpells as |spell|}}
+          <li class="item flexrow" data-item-id="{{spell.id}}">
 
-      </li>
-      {{#unless @root/concealDetails}}
-        <ol class="item-list">
-          {{#each itemSpells as |spell|}}
-            <li class="item context-enabled flexrow" data-item-id="{{spell.id}}">
-              <div class="item-name flexrow rollable" data-tooltip="{{#unless @root/isEmbedded}}IWS.PreviewSpell{{/unless}}">
-                <div class="item-image" style="background-image: url({{spell.img}})">{{{@root/rollIcon}}}</div>
-                <h4>{{spell.name}}</h4>
-              </div>
+            {{!-- Image & Name --}}
+            <div class="item-name flexrow{{#if spell.isEmbedded}} rollable{{/if}}" data-tooltip="{{#if spell.isEmbedded}}IWS.SUBTITLE.owned_item{{else}}IWS.PreviewSpell{{/if}}">
+              <div class="item-image" style="background-image: url({{spell.img}})"></div>
+              <h4 class="truncate">{{spell.name}}</h4>
+            </div>
 
-              <div class="item-detail item-with-spells-item-detail">
-                {{#if spell.labels.save}}
-                  <span title="{{labels.save}}">{{labels.save}}</span>
-                {{/if}}
-              </div>
+            {{!-- Save & Attack --}}
+            <div class="item-detail flexrow">
+              {{#if spell.labels.toHit}}
+                <div title="{{localize "DND5E.ItemAttackBonus"}}">{{spell.labels.toHit}}</div>
+              {{/if}}
+              {{#if (and spell.labels.save spell.system.save.dc)}}
+                <div title="{{spell.labels.save}}">{{ localize "DND5E.SaveDC" dc=spell.system.save.dc ability="" }}</div>
+              {{else if (not spell.labels.toHit)}}
+                <div>-</div>
+              {{/if}}
+            </div>
 
-              <div class="item-detail item-with-spells-item-detail">
-                {{#if (gt spell.system.uses.max 0)}}
-                  {{spell.system.uses.max}}
-                  <span class="sep">{{localize "DND5E.per"}}</span>
-                  {{#with (...lookup @root/config.limitedUsePeriods spell.system.uses.per)~}}
-                    {{label}}
-                  {{/with}}
-                {{/if}}
-              </div>
+            {{!-- Limited Uses --}}
+            <div class="item-detail">
+              {{#if (gt spell.system.uses.max 0)}}
+                {{spell.system.uses.max}}
+                <span class="sep">{{localize "DND5E.per"}}</span>
+                {{#with (...lookup @root/config.limitedUsePeriods spell.system.uses.per)~}}
+                  {{label}}
+                {{/with}}
+              {{else}}
+                -
+              {{/if}}
+            </div>
 
-              <div class="item-detail item-with-spells-item-detail">
-                {{#if (gt spell.system.consume.amount 0)}}
-                  {{spell.system.consume.amount}}
-                  {{localize 'DND5E.Charges'}}
-                {{/if}}
-              </div>
+            {{!-- Charges --}}
+            <div class="item-detail">
+              {{#if (gt spell.system.consume.amount 0)}}
+                {{spell.system.consume.amount}} {{localize 'DND5E.Charges'}}
+              {{else}}
+                -
+              {{/if}}
+            </div>
 
-              <div class="item-controls flexrow context-menu item-with-spells-item-controls">
-                {{#if @root/isOwner}}
+            {{!-- Buttons --}}
+            <div class="item-controls flexrow">
+              {{#if @root/isOwner}}
+
+                {{#unless @root/isEmbedded}}
                   <a class="item-control configure-overrides"
-                     data-tooltip="{{#unless @root/isEmbedded}}IWS.ConfigureOverrides{{else}}IWS.ConfigureSpell{{/unless}}">
-                    <i class="fas fa-edit"></i>
+                    data-tooltip="IWS.ConfigureOverrides">
+                    <i class="fas fa-wand-sparkles"></i>
                   </a>
-                  {{#if @root/isEmbedded}}
-                    <a class="item-control item-destroy" data-tooltip="IWS.DeleteSpell">
-                      <i class="fas fa-trash"></i>
-                    </a>
-                  {{else}}
-                    <a class="item-control item-delete" data-tooltip="IWS.RemoveLink">
-                      <i class="fas fa-trash"></i>
-                    </a>
-                  {{/if}}
+                {{/unless}}
+
+                {{#if spell.isOwner}}
+                  <a class="item-control item-edit" data-tooltip="IWS.BUTTONS.EditSpell">
+                      <i class="fas fa-edit"></i>
+                  </a>
                 {{/if}}
-              </div>
-            </li>
-          {{/each}}
-        </ol>
-      {{/unless}}
+
+                {{#if @root/isEmbedded}}
+                  <a class="item-control item-destroy" data-tooltip="IWS.BUTTONS.DeleteSpell">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                {{else}}
+                  <a class="item-control item-delete" data-tooltip="IWS.BUTTONS.RemoveLink">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                {{/if}}
+              {{/if}}
+            </div>
+          </li>
+        {{/each}}
+      {{/if}}
     </ol>
-  {{/dnd5e-concealSection}}
+  </ol>
+{{/dnd5e-concealSection}}
 </div>
