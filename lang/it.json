@@ -1,0 +1,48 @@
+{
+  "IWS": {
+    "ATTACK_HINT": "Se questo incantesimo ha un bonus di attacco fisso, scrivilo qui.",
+    "BUTTONS": {
+      "DeleteSpell": "Cancella incantesimo dall'oggetto e proponi di cancellarlo dal personaggio",
+      "EditSpell": "Modifica incantesimo",
+      "RemoveLink": "Rimuovi incantesimo dall'oggetto"
+    },
+    "TAB": {
+      "AbilityBased": "Basato su {ability}",
+      "Consumes": "Consuma",
+      "EmbeddedHint": "Oggetto posseduto dal personaggio. Gli incantesimi aggiunti sotto sono immediatamente aggiunti al personaggio. Non puoi impostare sostituzioni di incantesimi già posseduti, ma puoi configurare direttamente un incantesimo.",
+      "Hint": "Gli incantesimi sotto sono collegati a questo oggetto e saranno aggiunti al personaggio, con eventuali sostituzioni, quando trascini questo oggetto nella scheda personaggio.",
+      "FillerHint": "Trascina e rilascia qui un incantesimo per collegarlo a questo oggetto.",
+      "PreviewSpell": "Anteprima dell'incantesimo con sostituzioni"
+    },
+    "CHARGES_HINT": "Se questo incantesimo verrà lanciato utilizzando le cariche dell'oggetto principale, configura il numero di cariche sopra.",
+    "ConfigureOverrides": "Configurare sostituzioni",
+    "LIMITED_HINT": "Se questo incantesimo ha un numero di usi per riposo o limitazioni innate simili, configura il numero di cariche sopra.",
+    "MISSING_ITEM_DESCRIPTION": "Impossibile trovare l'oggetto originale di questo incantesimo. Forse è stato cancellato?",
+    "MISSING_ITEM": "Oggetto Mancante",
+    "MODULE_NAME": "Items with Spells",
+    "QUERY_ALSO_DELETE": "Vorresti anche eliminare gli incantesimi da quell'oggetto?",
+    "PreviewSpell": "Anteprima dell'incantesimo con sostituzioni",
+    "SAVE_HINT": "Se questo incantesimo ha una CD fissa o altra logica di tiro salvezza specifica.",
+    "SETTINGS" : {
+      "ITEM_EXCLUSION": {
+        "HINT": "Seleziona a quali tipi di oggetti possono essere associati incantesimi.",
+        "NAME": "Seleziona tipi di oggetti",
+        "TITLE": "Menu Esclusione Tipo Oggetto"
+      },
+      "SORT_ORDER": {
+        "HINT": "Se selezionate, le sezioni del libro degli incantesimi aggiunte da questo modulo verranno messe in fondo alla scheda del libro degli incantesimi, anziché in alto. Se stai utilizzando Tidy 5e Sheets, puoi modificare l'ordine con l'ingranaggio di modifica sul foglio, indipendentemente dal fatto che sia selezionato. (impostazione predefinita: non selezionata)",
+        "NAME": "Mostra gli incantesimi in basso nel libro incantesimi"
+      },
+      "EXCLUDE_UNEQUIPPED": {
+        "HINT": "Se selezionato, gli incantesimi non verranno mostrati per gli oggetti che non sono equipaggiati. Se deselezionati, gli incantesimi verranno mostrati indipendentemente dallo stato equipaggiato. La modifica di questa impostazione non avrà effetto sui fogli attualmente aperti. Chiudi e riapri un foglio per vedere questo lavoro. (impostazione predefinita: selezionata)",
+        "NAME": "Nascondi incantesimi per oggetti non equipaggiati"
+      }
+    },
+    "WARN_ALSO_DELETE": "L'incantesimo non è più legato all'oggetto, ma è ancora presente sul personaggio. Vuoi eliminare anche l'incantesimo dal personaggio?",
+    "WARN_OWNED_SPELL": "Oggetto di proprietà del personaggio. Gli incantesimi aggiunti di seguito vengono immediatamente aggiunti al personaggio. Non puoi impostare sostituzioni su incantesimi già posseduti, ma puoi configurare direttamente un incantesimo. Le modifiche possono essere impostate sugli elementi nella barra laterale (cioè non sulla scheda del personaggio).",
+    "SUBTITLE": {
+      "linked_item": "Clicca per visualizzare l'anteprima dell'incantesimo con sostituzioni",
+      "owned_item": "Clicca per lanciare l'incantesimo"
+    }
+  }
+}
